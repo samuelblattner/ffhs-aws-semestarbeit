@@ -178,7 +178,7 @@ def print_function_stats(measurements):
         for fn_name, value, calc_time, calls in measurements:
             columns[0].append(fn_name)
             columns[1].append(str(value))
-            columns[2].append('%0.10f ms' % calc_time if calc_time >= 0 else '-')
+            columns[2].append('%0.10f μs' % (calc_time * 10**6) if calc_time >= 0 else '-')
             columns[3].append(str(calls))
             columns[4].append('%3.4f%%' % (1 / (calc_time / best_exec_time) * 100) if calc_time >= 0 else '-')
 
