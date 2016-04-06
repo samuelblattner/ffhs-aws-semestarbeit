@@ -6,8 +6,11 @@ class CSVParser(object):
     """
     # data
     rows = []
+    data_type = str
+    use_heading = False
+    use_labels = False
 
-    def __init__(self, strip_spaces=False, separator=',', **kwargs):
+    def __init__(self, strip_spaces=False, strip_inner_spaces=False, separator=',', **kwargs):
         """
         Initializes the instance
         :param strip_spaces: If True, leading and trailing spaces will be stripped from the cell values
@@ -15,8 +18,10 @@ class CSVParser(object):
         :param kwargs: Use start_row, end_row, start_col, end_col to define the area that should be read in the CSV
         :return: None
         """
+        self.rows = []
         self.separator = separator
         self.strip_spaces = strip_spaces
+        self.strip_inner_spaces = strip_inner_spaces
         self.start_row = kwargs.pop('start_row', 0)
         self.end_row = kwargs.pop('end_row', 0)
         self.start_col = kwargs.pop('start_col', None)
@@ -30,9 +35,19 @@ class CSVParser(object):
         :param value: Value of the cell
         :return: Processed value
         """
+        if self.strip_inner_spaces:
+            return value.replace(' ', '')
         if self.strip_spaces:
             return value.strip()
         return value
+
+    def convert_to_type(self, value, row, col):
+        if row == 0 and self.use_heading or col == 0 and self.use_labels:
+            return value
+        try:
+            return self.data_type(value)
+        except ValueError:
+            return value
 
     def load_from_csv(self, path):
         """
@@ -44,7 +59,7 @@ class CSVParser(object):
         :return: True if successful, False if not
         """
         try:
-            file = open(path, 'r')
+            file = open(path, 'r', encoding='utf-8')
         except FileNotFoundError:
             print('The file "{}" does not exist!'.format(path))
             return False
@@ -56,14 +71,14 @@ class CSVParser(object):
             if not self.end_row:
                 self.end_row = len(lines) - 1
 
-            for line in lines[self.start_row:self.end_row]:
+            for row, line in enumerate(lines[self.start_row:self.end_row + 1]):
                 # If end col hasn't been set, set it to the last col
                 if not self.end_col:
                     self.end_col = len(line) - 1
 
-                columns = [self.sanitize(cell) for cell in line.split(self.separator)[self.start_col:self.end_col]]
+                columns = [self.convert_to_type(self.sanitize(cell), row, col) for col, cell in enumerate(line.split(self.separator)[self.start_col:self.end_col])]
                 self.rows.append(columns)
+            file.close()
             return True
-
         else:
             return False
