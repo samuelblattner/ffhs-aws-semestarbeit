@@ -159,7 +159,7 @@ class Diagram(object):
         plt.pie(self.data[0])
         plt.show()
 
-    def _draw_bars_base(self, vertical=True, first_column_is_legend=True, first_row_is_heading=False):
+    def _draw_bars_base(self, first_column_is_legend=False, first_row_is_heading=False, vertical=True):
         """
         Shared bar drawing method for horizontal and vertical bars
         :param first_column_is_legend: Will treat first column as legend column if True
@@ -196,23 +196,23 @@ class Diagram(object):
             color = colors.get(n_col % 6, 'g')
 
             bar_fn([row + (-n_bars_per_group / 2.0) * bar_width + n_col * bar_width for row in self.range],
-                    [cols[n_col + n_legend_col] for cols in self.data[n_heading_row:]], width=bar_width, color=color)
+                   [cols[n_col + n_legend_col] for cols in self.data[n_heading_row:]], width=bar_width, color=color)
 
         plt.show()
 
-    def _draw_bars(self, first_column_is_legend=True, first_row_is_heading=False):
+    def _draw_bars(self, first_column_is_legend=False, first_row_is_heading=False):
         """
         Draws vertical bars
         :return:
         """
         self._draw_bars_base(first_column_is_legend, first_row_is_heading)
 
-    def _draw_hbars(self, first_column_is_legend=True, first_row_is_heading=False):
+    def _draw_hbars(self, first_column_is_legend=False, first_row_is_heading=False):
         """
         Draws horizontal bars
         :return:
         """
-        self._draw_bars_base(first_column_is_legend, first_row_is_heading, vertical=False,)
+        self._draw_bars_base(first_column_is_legend, first_row_is_heading, vertical=False)
 
     def _draw_histogram(self):
         """
